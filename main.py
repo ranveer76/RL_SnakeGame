@@ -1,18 +1,17 @@
-import pygame, time, torch
+import pygame, time, torch, os
 from envs.game_env import SingleSnakeWrapper
 from gui.renderer import Renderer
 from config import CELL_SIZE, WINDOW_WIDTH as GRID_W, WINDOW_HEIGHT as GRID_H, FPS, MARGIN
 from model.agent import DQNAgent
-from trainer.train import train_adaptive
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, simpledialog
 import io
 import base64
 from fastapi import FastAPI, WebSocket
 from fastapi.responses import HTMLResponse
 import threading
 import queue
-import uvicorn
+# import uvicorn
 import asyncio
 from starlette.websockets import WebSocketDisconnect
 from PIL import Image
@@ -89,10 +88,6 @@ def select_training_mode(window):
                         return text.lower().replace(" ", "_")
 
 def get_path_for_mode(mode):
-    import tkinter as tk
-    from tkinter import filedialog, simpledialog
-    import os
-
     root = tk.Tk()
     root.withdraw()
 
@@ -159,6 +154,7 @@ def game():
         model_path = get_path_for_mode(training_mode)
 
         if model_path:
+            from trainer.train import train_adaptive
             train_adaptive(model=model_path)
         else:
             print("⚠️ Training cancelled.")
@@ -246,5 +242,5 @@ def main():
             length = len(snake_body)
 
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="localhost", port=8000)
+# if __name__ == "__main__":
+#     uvicorn.run(app, host="localhost", port=8000)
