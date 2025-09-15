@@ -31,9 +31,8 @@
   <img id="game" alt="Snake RL Frame" />
   <script>
     const img = document.getElementById("game");
-    const socket = new WebSocket("ws://localhost:8000/ws", [], {
-      headers: { "ngrok-skip-browser-warning": "true" }
-    });
+    // Use your Vercel deployment domain for WebSocket
+    const socket = new WebSocket("wss://rl-snake-game-git-main-ranveer-singh-walias-projects.vercel.app/ws");
 
     socket.onmessage = (event) => {
       img.src = "data:image/png;base64," + event.data;
