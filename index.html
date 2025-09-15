@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snake RL Viewer</title>
+  <style>
+    body {
+      background: #111;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    img {
+      max-width: 90%;
+      height: auto;
+      max-height: 100vh;
+      object-fit: contain;
+      border: 2px solid #ccc;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    }
+
+  </style>
+</head>
+<body>
+  <img id="game" alt="Snake RL Frame" />
+  <script>
+    const img = document.getElementById("game");
+    const socket = new WebSocket("ws://localhost:8000/ws", [], {
+      headers: { "ngrok-skip-browser-warning": "true" }
+    });
+
+    socket.onmessage = (event) => {
+      img.src = "data:image/png;base64," + event.data;
+    };
+  </script>
+</body>
+</html>
