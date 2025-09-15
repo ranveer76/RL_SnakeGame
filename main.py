@@ -17,7 +17,7 @@ from starlette.websockets import WebSocketDisconnect
 from PIL import Image
 
 app = FastAPI()
-frame_queue = queue.Queue()
+frame_queue = queue.Queue(maxsize=2)
 rl_stop_event = threading.Event()
 
 @app.get("/", response_class=HTMLResponse)
