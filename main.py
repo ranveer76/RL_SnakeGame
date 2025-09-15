@@ -19,25 +19,33 @@ from PIL import Image
 
 app = FastAPI()
 frame_queue = queue.Queue()
+rl_stop_event = threading.Event()
 
 @app.get("/", response_class=HTMLResponse)
 def index():
     with open("index.html", "r") as f:
         return f.read()
 
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
+    rl_stop_event.clear()
+    agent_thread = threading.Thread(target=main, daemon=True)
+    if not any(t.name == "rl_agent_thread" for t in threading.enumerate()):
+        agent_thread.name = "rl_agent_thread"
+        agent_thread.start()
     try:
         while True:
-                try:
-                    frame = frame_queue.get(timeout=1)
-                    await websocket.send_text(frame)
-                    await asyncio.sleep(1 / FPS)
-                except queue.Empty:
-                    continue
+            try:
+                frame = frame_queue.get(timeout=1)
+                await websocket.send_text(frame)
+                await asyncio.sleep(1 / FPS)
+            except queue.Empty:
+                continue
     except WebSocketDisconnect:
         print("⚠️ WebSocket disconnected by client")
+        rl_stop_event.set()
 
 def show_preview(surface):
     preview = pygame.display.set_mode(surface.get_size())
@@ -209,7 +217,7 @@ def main():
     state = env.reset()
     score = 0
     length = 0
-    while True:
+    while not rl_stop_event.is_set():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -237,7 +245,6 @@ def main():
         else:
             length = len(snake_body)
 
+
 if __name__ == "__main__":
-    import threading
-    threading.Thread(target=main, daemon=True).start()
     uvicorn.run(app, host="localhost", port=8000)
