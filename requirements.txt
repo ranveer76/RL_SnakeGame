@@ -1,0 +1,6 @@
+torch
+pygame
+fastapi
+uvicorn
+starlette
+pillow
